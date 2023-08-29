@@ -43,16 +43,24 @@ let updateFunction = (item, item2) => {
   	return options;
 }
 
-router.get('/status/:id',
+router.get('/status/:phno',
 	[
-		param('id')
-			.trim()
-			.notEmpty()
-			.withMessage('Payment ID required'),
+		param('phno').custom(value => {
+		    // Regular expression to match international phone numbers
+
+		    const phoneNumberRegex = /^\+\d+\s\d*$/;
+
+		    if (!phoneNumberRegex.test(value)) {
+		      throw new Error('Invalid phone number format');
+		    }
+
+		    // Return true to indicate the validation succeeded
+		    return true;
+		})
 	], 
 	async (req, res, next) => {
 	try {
-		const { id } = req.params;
+		const { phno } = req.params;
 
 		// console.log(id);
 
@@ -68,28 +76,67 @@ router.get('/status/:id',
 		}
 
 		else {
-			const url = `https://api-sandbox.nowpayments.io/v1/payment/${id}`;
+			let opt1 = selectFunction(
+			  "select * from users where phone = '"
+			    .concat(`${phno}`)
+			    .concat("'")
+			);
 
-			const opt1 = {
-			  	'method': 'GET',
-			  	'url': url,
-			  	'headers': {
-			    	'x-api-key': '5RBGE0W-0MTMWKD-KEHQK25-DX4Q6Q5'
-			  	}
-			};
-
-			request(opt1, function (error, response) {
+			request(opt1, (error, response) => {
 				if (error) throw new Error(error);
 				else { 
-					let x = JSON.parse(response.body); 
-					// console.log(x);
+					let y = JSON.parse(response.body);
 
-					if (x.hasOwnProperty('payment_id')) {
-						return res.json({
-							isSuccess: true,
-							status: x['payment_status'],
-							errorMessage: ''
-						})
+					// console.log(y);
+
+					if (y.length >= 1) {
+						const id = y[0]['payment_id'];
+
+						// console.log(id);
+
+						if (id !== null) {
+							const url = `https://api-sandbox.nowpayments.io/v1/payment/${id}`;
+
+							const opt2 = {
+							  'method': 'GET',
+							  'url': url,
+							  'headers': {
+							   	'x-api-key': '5RBGE0W-0MTMWKD-KEHQK25-DX4Q6Q5'
+							  }
+							};
+
+							request(opt2, function (error, response) {
+								if (error) throw new Error(error);
+								else { 
+									let x = JSON.parse(response.body); 
+									// console.log(x);
+
+									if (x.hasOwnProperty('payment_id')) {
+										return res.json({
+											isSuccess: true,
+											status: x['payment_status'],
+											errorMessage: ''
+										})
+									}
+
+									else {
+										return res.json({
+											isSuccess: false,
+											status: '',
+											errorMessage: 'Failed...'
+										})
+									}
+								}
+							});
+						}
+
+						else {
+							return res.json({
+								isSuccess: false,
+								status: '',
+								errorMessage: 'You are not a subscriber...'
+							})
+						} 
 					}
 
 					else {
@@ -98,16 +145,16 @@ router.get('/status/:id',
 							status: '',
 							errorMessage: 'Failed...'
 						})
-					}
+					} 
 				}
-			});
+			})
 		}
 	}
 	catch(error) {
 		return res.json({
 			isSuccess: false,
 			status: '',
-			errorMessage: 'Invalid Payment ID...'
+			errorMessage: 'Invalid Phone Number...'
 		})
 	}
 })
