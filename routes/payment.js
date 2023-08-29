@@ -98,7 +98,7 @@ router.post('/payment',
 									    "price_amount": x[0].amount,
 									    "price_currency": 'eur',
 									    "pay_currency": currency,
-									    "ipn_callback_url": `http://localhost:3000/v1/notify/?phno=${modifiedNumber}&plan=${id}`,
+									    "ipn_callback_url": `https://abcd-4wlf.onrender.com/v1/notify/?phno=${modifiedNumber}&plan=${id}`,
 									    "order_id": id,
 									  })
 									};
