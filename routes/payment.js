@@ -83,26 +83,6 @@ router.post('/payment',
 				request(opt1, (error, response) => {
 					if (error) throw new Error(error);
 					else {
-						// const options = {
-						//   method: 'POST',
-						//   url: 'https://api-sandbox.coingate.com/api/v2/orders',
-						//   headers: {
-						//     accept: 'application/json',
-						//     Authorization: 'Token BWodS1EkFyiKSVnu8vCJZA2DGtYSJnuirzvZMyde',
-						//     'content-type': 'application/x-www-form-urlencoded'
-						//   },
-						//   form: {
-						//     callback_url: 'http://localhost:3000/v1/notify',
-						//     cancel_url: 'http://localhost:3000/v1/cancel',
-						//     success_url: 'http://localhost:3000/v1/success',
-						//     receive_currency: currency,
-						//     price_currency: currency,
-						//     price_amount: amount,
-						//     order_id: id,
-						//     purchaser_email: 'hi@gmail.com'
-						//   }
-						// };
-
 						let opt2 = selectFunction(
 							"select amount from plan where id = '"
 								.concat(`${id}`)
