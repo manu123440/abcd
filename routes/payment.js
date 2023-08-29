@@ -62,7 +62,7 @@ router.post('/payment',
 				// console.log(error.array());
 				return res.json({
 					isSuccess: false,
-					payment_id: '',
+					address: '',
 			    errorMessage: error.array()[0].msg
 				})
 			}
@@ -71,6 +71,26 @@ router.post('/payment',
 				request(opt1, (error, response) => {
 					if (error) throw new Error(error);
 					else {
+						// const options = {
+						//   method: 'POST',
+						//   url: 'https://api-sandbox.coingate.com/api/v2/orders',
+						//   headers: {
+						//     accept: 'application/json',
+						//     Authorization: 'Token BWodS1EkFyiKSVnu8vCJZA2DGtYSJnuirzvZMyde',
+						//     'content-type': 'application/x-www-form-urlencoded'
+						//   },
+						//   form: {
+						//     callback_url: 'http://localhost:3000/v1/notify',
+						//     cancel_url: 'http://localhost:3000/v1/cancel',
+						//     success_url: 'http://localhost:3000/v1/success',
+						//     receive_currency: currency,
+						//     price_currency: currency,
+						//     price_amount: amount,
+						//     order_id: id,
+						//     purchaser_email: 'hi@gmail.com'
+						//   }
+						// };
+
 						let opt2 = selectFunction(
 							"select amount from plan where id = '"
 								.concat(`${id}`)
@@ -85,9 +105,10 @@ router.post('/payment',
 						  	// console.log(x);
 
 						  	if (x.length >= 1) {
-								const modifiedNumber = phno.replace(/\+/g, '').replace(/\s/g, '_');
-								console.log(modifiedNumber);
-								
+									const modifiedNumber = phno.replace(/\+/g, '').replace(/\s/g, '_');
+
+									console.log(modifiedNumber);
+
 						  		let options = {
 									  'method': 'POST',
 									  'url': 'https://api-sandbox.nowpayments.io/v1/payment',
@@ -99,7 +120,7 @@ router.post('/payment',
 									    "price_amount": x[0].amount,
 									    "price_currency": 'eur',
 									    "pay_currency": currency,
-									    "ipn_callback_url": `https://abcd-4wlf.onrender.com/v1/notify/?phno=${modifiedNumber}&plan=${id}`,
+									    "ipn_callback_url": `http://localhost:3000/v1/notify/?phno=${modifiedNumber}&plan=${id}`,
 									    "order_id": id,
 									  })
 									};
@@ -114,14 +135,14 @@ router.post('/payment',
 									  	if (y.hasOwnProperty('payment_id')) {
 									  		return res.json({
 										  		isSuccess: true,
-										  		payment_id: y.payment_id,
+										  		address: y.pay_address,
 										  		errorMessage: ''
 										  	})
 									  	}
 									  	else {
 									  		return res.json({
 										  		isSuccess: false,
-										  		payment_id: '',
+										  		address: '',
 										  		errorMessage: 'failed...'
 										  	})
 									  	}
@@ -132,7 +153,7 @@ router.post('/payment',
 						  	else {
 						  		return res.json({
 										isSuccess: false,
-										payment_id: '',
+										address: '',
 								    errorMessage: 'Invalid Plan ID...'
 									})
 						  	}
@@ -146,7 +167,7 @@ router.post('/payment',
 			// console.log(error);
 			return res.json({
 				isSuccess: false,
-				payment_id: '',
+				address: '',
 			  errorMessage: "Invalid phone number, Try Again...."
 			})
 		}
