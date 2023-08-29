@@ -46,7 +46,7 @@ let updateFunction = (item, item2) => {
 router.post("/login", 
 	[
 	  body('phno').custom(value => {
-		  const phoneNumberRegex = /^\+\d+\s\d*$/;
+	          const phoneNumberRegex = /^\+\d+\s\d*$/;
 
 		  if (!phoneNumberRegex.test(value)) {
 		    throw new Error('Invalid phone number format');
