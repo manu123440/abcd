@@ -86,6 +86,7 @@ router.post('/payment',
 
 						  	if (x.length >= 1) {
 								const modifiedNumber = phno.replace(/\+/g, '').replace(/\s/g, '_');
+								console.log(modifiedNumber);
 								
 						  		let options = {
 									  'method': 'POST',
