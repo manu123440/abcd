@@ -19,6 +19,18 @@ let selectFunction = (item) => {
   return options;
 };
 
+let updateFunction = (item, item2) => {
+	let options = {
+	    method: "POST",
+	    url: baseUrl + "update.php",
+	    formData: {
+	      update_query: item,
+	      select_query: item2,
+	    },
+  	};
+  	return options;
+};
+
 router.post('/payment',
 	[
 		body('phno').custom(value => {
@@ -71,6 +83,26 @@ router.post('/payment',
 				request(opt1, (error, response) => {
 					if (error) throw new Error(error);
 					else {
+						// const options = {
+						//   method: 'POST',
+						//   url: 'https://api-sandbox.coingate.com/api/v2/orders',
+						//   headers: {
+						//     accept: 'application/json',
+						//     Authorization: 'Token BWodS1EkFyiKSVnu8vCJZA2DGtYSJnuirzvZMyde',
+						//     'content-type': 'application/x-www-form-urlencoded'
+						//   },
+						//   form: {
+						//     callback_url: 'http://localhost:3000/v1/notify',
+						//     cancel_url: 'http://localhost:3000/v1/cancel',
+						//     success_url: 'http://localhost:3000/v1/success',
+						//     receive_currency: currency,
+						//     price_currency: currency,
+						//     price_amount: amount,
+						//     order_id: id,
+						//     purchaser_email: 'hi@gmail.com'
+						//   }
+						// };
+
 						let opt2 = selectFunction(
 							"select amount from plan where id = '"
 								.concat(`${id}`)
@@ -87,7 +119,7 @@ router.post('/payment',
 						  	if (x.length >= 1) {
 									const modifiedNumber = phno.replace(/\+/g, '').replace(/\s/g, '_');
 
-									console.log(modifiedNumber);
+									// console.log(modifiedNumber);
 
 						  		let options = {
 									  'method': 'POST',
@@ -113,11 +145,43 @@ router.post('/payment',
 									  	// console.log(y);
 
 									  	if (y.hasOwnProperty('payment_id')) {
-									  		return res.json({
-										  		isSuccess: true,
-										  		address: y.pay_address,
-										  		errorMessage: ''
-										  	})
+									  		// update payment_id in db
+
+									  		let opt3 = updateFunction(
+													"update users SET payment_id = '"
+														.concat(`${y['payment_id']}`)
+														.concat("' where phone = '")
+														.concat(`${phno}`)
+														.concat("'"),
+													"select * from users where phone = '"
+														.concat(`${phno}`)
+														.concat("'")
+												);
+
+												request(opt3, (error, response) => {
+												  if (error) throw new Error(error);
+												  else {
+												  	let z = JSON.parse(response.body);
+
+												  	// console.log(z);
+
+												  	if (z.length >= 1) {
+												  		return res.json({
+													  		isSuccess: true,
+													  		address: y.pay_address,
+													  		errorMessage: ''
+													  	})
+												  	}
+
+												  	else {
+												  		return res.json({
+													  		isSuccess: false,
+													  		address: '',
+													  		errorMessage: 'failed...'
+													  	})
+												  	}
+												  }
+												})
 									  	}
 									  	else {
 									  		return res.json({
