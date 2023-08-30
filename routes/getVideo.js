@@ -93,55 +93,69 @@ router.get('/video/:id',
 
 					       	if (x.length >= 1) {
 					       		const i = x[0].video_url;
-						       	const regex = /\/([^/]+)$/; // Matches the last part of the URL after the last "/"
 
-										const match = i.match(regex);
-										if (match) {
-										  const extractedString = match[1];
-										  const fileCode = extractedString;
-
-										  // console.log(fileCode);
-
-										  const url = `https://uptobox.com/api/streaming?token=45701da784b02110e845cb7b8a8872577d32q&file_code=${fileCode}`;
-
-										  const opt3 = {
-											  'method': 'GET',
-											  'url': url,
-											  'headers': {
-											  }
-											};
-
-											request(opt3, function (error, response) {
-											  if (error) throw new Error(error);
-											  else {
-											  	let z = JSON.parse(response.body);
-
-											  	// console.log(z);
-
-											  	if (z.message === 'Success') {
-											  		return res.json({
-															isSuccess: true,
-															videoUrl: z.data.streamLinks.src,
-															errorMessage: ""
-														})
-											  	}
-
-											  	else {
-											  		return res.json({
-															isSuccess: false,
-															videoUrl: "",
-															errorMessage: "No data found..."
-														})
-											  	}
-											  }
-											});
-										} else {
-										  return res.json({
+					       		if (i === '') {
+					       			return res.json({
 												isSuccess: false,
 												videoUrl: "",
 												errorMessage: "No data found..."
 											})
-										}					        	
+					       		}
+
+					       		else {
+						       		const regex = /\/([^/]+)$/; // Matches the last part of the URL after the last "/"
+
+											const match = i.match(regex);
+
+											if (match) {
+											  const extractedString = match[1];
+											  const fileCode = extractedString;
+
+											  // console.log(fileCode);
+
+											  const url = `https://uptobox.com/api/streaming?token=45701da784b02110e845cb7b8a8872577d32q&file_code=${fileCode}`;
+
+											  const opt3 = {
+												  'method': 'GET',
+												  'url': url,
+												  'headers': {
+												  }
+												};
+
+												request(opt3, function (error, response) {
+												  if (error) throw new Error(error);
+												  else {
+												  	let z = JSON.parse(response.body);
+
+												  	// console.log(z);
+
+												  	if (z.message === 'Success') {
+												  		return res.json({
+																isSuccess: true,
+																videoUrl: z.data.streamLinks.src,
+																errorMessage: ""
+															})
+												  	}
+
+												  	else {
+												  		return res.json({
+																isSuccess: false,
+																videoUrl: "",
+																errorMessage: "No data found..."
+															})
+												  	}
+												  }
+												});
+											} 
+
+											else {
+											  return res.json({
+													isSuccess: false,
+													videoUrl: "",
+													errorMessage: "No data found..."
+												})
+											}	
+										}				        	
 					       	}
 
 					       	else {
