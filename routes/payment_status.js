@@ -100,40 +100,56 @@ router.get('/status/:phno',
 									// console.log(x);
 
 									if (x.hasOwnProperty('payment_id')) {
-										let opt3 = updateFunction(
-											"update users set payment_id = 'null'"
-												.concat("where phone = '")
-		                    .concat(`${phno}`)
-		                    .concat("'"),
-		                  "select * from users where phone = '"
-		                    .concat(`${phno}`)
-		                    .concat("'")
-										);
+										if (Number(x['payment_id']) === Number(id) && x['payment_status'] === 'finished') {
+											// const currentDate = new Date();
+											const currentDate = new Date(x['created_at']);
+											// console.log(currentDate);
 
-										request(opt3, function (error, response) {
-											if (error) throw new Error(error);
-											else { 
-												let z = JSON.parse(response.body);
+							        // Convert the date to a MySQL-compatible datetime string
+							        const subDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
 
-												// console.log(z);
+							        // console.log(subDate);
 
-												if (z.length >= 1) {
-													return res.json({
-														isSuccess: true,
-														status: x['payment_status'],
-														errorMessage: ''
-													})
+							        const planId = x['order_id'];
+
+							        let opt2 = updateFunction(
+							          "update users set sub_date = '"
+							            .concat(`${subDate}`)
+							            .concat("', paid = 'true', plan_id = '")
+							            .concat(`${planId}`)
+							            .concat("', status = 'active', payment_id = 'null' where phone = '")
+							            .concat(`${phno}`)
+							            .concat("'"),
+							          "select * from users where phone = '"
+							            .concat(`${phno}`)
+							            .concat("'")
+							        );
+
+							        request(opt2, function (error, response) {
+												if (error) throw new Error(error);
+												else { 
+													let z = JSON.parse(response.body);
+
+													// console.log(z);
+
+													if (z.length >= 1) {
+														return res.json({
+															isSuccess: true,
+															status: x['payment_status'],
+															errorMessage: ''
+														})
+													}
+
+													else {
+														return res.json({
+															isSuccess: false,
+															status: '',
+															errorMessage: 'Failed...'
+														})
+													} 
 												}
-
-												else {
-													return res.json({
-														isSuccess: false,
-														status: '',
-														errorMessage: 'Failed...'
-													})
-												} 
-											}
-										});
+											});
+										}										
 									}
 
 									else {
