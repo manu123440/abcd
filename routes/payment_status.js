@@ -112,32 +112,63 @@ router.get('/status/:phno',
 
 							        const planId = x['order_id'];
 
-							        let opt2 = updateFunction(
-							          "update users set sub_date = '"
-							            .concat(`${subDate}`)
-							            .concat("', paid = 'true', plan_id = '")
-							            .concat(`${planId}`)
-							            .concat("', status = 'active', payment_id = 'null' where phone = '")
-							            .concat(`${phno}`)
-							            .concat("'"),
-							          "select * from users where phone = '"
-							            .concat(`${phno}`)
-							            .concat("'")
-							        );
+							        let opt3 = selectFunction(
+											  "select no_of_days from plan where id = '"
+											    .concat(`${planId}`)
+											    .concat("'")
+											);
 
-							        request(opt2, function (error, response) {
+											request(opt3, (error, response) => {
 												if (error) throw new Error(error);
 												else { 
-													let z = JSON.parse(response.body);
+													let z1 = JSON.parse(response.body);
 
-													// console.log(z);
+													console.log(z1);
 
-													if (z.length >= 1) {
-														return res.json({
-															isSuccess: true,
-															status: x['payment_status'],
-															errorMessage: ''
-														})
+													if (z1.length >= 1) {
+														let noOfDays = z1[0].no_of_days;
+
+														// console.log(noOfDays);
+
+														let opt2 = updateFunction(
+										          "update users set sub_date = '"
+										            .concat(`${subDate}`)
+										            .concat("', paid = 'true', plan_id = '")
+										            .concat(`${planId}`)
+										            .concat("', no_of_days = '")
+										            .concat(`${noOfDays}`)
+										            .concat("', status = 'active', payment_id = 'null' where phone = '")
+										            .concat(`${phno}`)
+										            .concat("'"),
+										          "select * from users where phone = '"
+										            .concat(`${phno}`)
+										            .concat("'")
+										        );
+
+										        request(opt2, function (error, response) {
+															if (error) throw new Error(error);
+															else { 
+																let z = JSON.parse(response.body);
+
+																// console.log(z);
+
+																if (z.length >= 1) {
+																	return res.json({
+																		isSuccess: true,
+																		status: x['payment_status'],
+																		errorMessage: ''
+																	})
+																}
+
+																else {
+																	return res.json({
+																		isSuccess: false,
+																		status: '',
+																		errorMessage: 'Failed...'
+																	})
+																} 
+															}
+														});
 													}
 
 													else {
@@ -146,9 +177,9 @@ router.get('/status/:phno',
 															status: '',
 															errorMessage: 'Failed...'
 														})
-													} 
+													}
 												}
-											});
+											})
 										}										
 									}
 
