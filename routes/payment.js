@@ -114,6 +114,7 @@ router.post('/payment',
 									    "pay_currency": currency,
 									    "ipn_callback_url": `https://abcd-4wlf.onrender.com/v1/notify/?phno=${modifiedNumber}&plan=${id}`,
 									    "order_id": id,
+									    "case": "success"
 									  })
 									};
 
