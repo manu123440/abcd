@@ -19,18 +19,6 @@ let selectFunction = (item) => {
   return options;
 };
 
-let insertFunction = (item, item2) => {
-  let options = {
-    method: "POST",
-    url: baseUrl + "insert.php",
-    formData: {
-      insert_query: item,
-      select_query: item2,
-    },
-  };
-  return options;
-};
-
 let updateFunction = (item, item2) => {
 	let options = {
 	    method: "POST",
@@ -112,11 +100,40 @@ router.get('/status/:phno',
 									// console.log(x);
 
 									if (x.hasOwnProperty('payment_id')) {
-										return res.json({
-											isSuccess: true,
-											status: x['payment_status'],
-											errorMessage: ''
-										})
+										let opt3 = updateFunction(
+											"update users set payment_id = 'null'"
+												.concat("where phone = '")
+		                    .concat(`${phno}`)
+		                    .concat("'"),
+		                  "select * from users where phone = '"
+		                    .concat(`${phno}`)
+		                    .concat("'")
+										);
+
+										request(opt3, function (error, response) {
+											if (error) throw new Error(error);
+											else { 
+												let z = JSON.parse(response.body);
+
+												// console.log(z);
+
+												if (z.length >= 1) {
+													return res.json({
+														isSuccess: true,
+														status: x['payment_status'],
+														errorMessage: ''
+													})
+												}
+
+												else {
+													return res.json({
+														isSuccess: false,
+														status: '',
+														errorMessage: 'Failed...'
+													})
+												} 
+											}
+										});
 									}
 
 									else {
